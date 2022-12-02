@@ -41,6 +41,21 @@ local function script_path()
  end
 
 
+--Exports the C file based on the template and content
+ local function export_C(fpath, fnameonly, output)
+
+    local ftemplateC = io.open(script_path() ..  "template.c","r")
+    local content = ftemplateC:read("*all")
+    ftemplateC:close()
+    
+    local foutC = io.open(fpath .. "/" .. fnameonly ..".c","w")
+    content = content:gsub("%%%%CONTENT%%%%", output)
+    content = content:gsub("%%%%HFILENAME%%%%", fnameonly)
+    foutC:write(content)
+    foutC:close()
+ end
+
+
 ----------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------
@@ -87,21 +102,7 @@ end
 local fnameonly = app.activeSprite.filename:match("^.+/(.+)$"):gsub(".aseprite", "")
 local fpath = app.activeSprite.filename:match("^(.+)/.+$")
 
-
---and save because I can't copy the content of the print popup..
--- local file = io.open(fname .. ".c","w")
--- file:write(output)
--- file:close()
-
-
-local ftemplateC = io.open(script_path() ..  "template.c","r")
-local content = ftemplateC:read("*all")
-ftemplateC:close()
-
-local foutC = io.open(fpath .. "/" .. fnameonly ..".c","w")
-content = content:gsub("%%%%CONTENT%%%%", output)
-content = content:gsub("%%%%HFILENAME%%%%", fnameonly)
-foutC:write(content)
-foutC:close()
+--Exports the C file
+export_C(fpath, fnameonly, output)
 
 return app.alert("Done!")
