@@ -55,6 +55,18 @@ local function script_path()
     foutC:close()
  end
 
+--Exports the H file based on the template and content
+local function export_H(fpath, fnameonly, defines)
+
+    local ftemplateH = io.open(script_path() ..  "template.h","r")
+    local content = ftemplateH:read("*all")
+    ftemplateH:close()
+    
+    local foutH = io.open(fpath .. "/" .. fnameonly ..".h","w")
+    content = content:gsub("%%%%DEFINES%%%%", defines)
+    foutH:write(content)
+    foutH:close()
+ end
 
 ----------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------
@@ -80,6 +92,8 @@ end
 
 
 local output = ""
+local defines = ""
+local spritecount = 1
 local n = #app.activeSprite.palettes[1]
 if n > 2 then
   local mask = img.spec.transparentColor
@@ -88,14 +102,29 @@ if n > 2 then
   --but there might be many in the same image so use the row and col to be understood as multiples of 8px
   local row = 0
   local col = 0
+  
+  while (row * 8 < app.activeSprite.height)
+  do
+    col = 0
+    while (col * 8 < app.activeSprite.width)
+    do
+        --16x16 sprites are stored left half and right half so the parsing order is TL - BL - TR - BR
+        output = output .. (output == "" and "" or ",\n\n") 
+        output = output .. string.format("// Sprite #%d at (line %d, col %d)\n", spritecount, row, col)
+        output = output .. exportTile2String(row, col, img)
+        output = output .. ",\n" .. exportTile2String(row+1, col, img)
+        output = output .. ",\n" .. exportTile2String(row, col+1, img)
+        output = output .. ",\n" .. exportTile2String(row+1, col+1, img)
 
-  --16x16 sprites are stored left half and right half so the parsing order is TL - BL - TR - BR
-  output = output .. exportTile2String(row, col, img)
-  output = output .. ", \n" .. exportTile2String(row+1, col, img)
-  output = output .. ", \n" .. exportTile2String(row, col+1, img)
-  output = output .. ", \n" .. exportTile2String(row+1, col+1, img)
+        defines = defines .. string.format("#define SPRITE_%d\t\t%d\n", spritecount, (spritecount -1 ) * 4)
 
-    --TODO add iteration through the whole image here
+        --+2 because we read above 4 tiles
+        col = col + 2
+        spritecount = spritecount + 1
+    end --while col
+
+    row = row + 2
+  end --while row
 end
 
 --These regex work on linux, on windows should trade \ for / ...
@@ -104,5 +133,9 @@ local fpath = app.activeSprite.filename:match("^(.+)/.+$")
 
 --Exports the C file
 export_C(fpath, fnameonly, output)
+
+--Exports the H file
+defines = string.format("#define SPRITE_COUNT\t\t%d\n\n", spritecount) .. defines
+export_H(fpath, fnameonly, defines)
 
 return app.alert("Done!")
