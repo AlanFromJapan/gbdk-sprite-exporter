@@ -135,7 +135,8 @@ local fpath = app.activeSprite.filename:match("^(.+)/.+$")
 export_C(fpath, fnameonly, output)
 
 --Exports the H file
-defines = string.format("#define SPRITE_COUNT\t\t%d\n\n", spritecount) .. defines
+--BEWARE there are 4 TILES per a GB SPRITE (again we aim at 16x16 GB sprites)
+defines = string.format("#define TILE_COUNT\t\t%d\n\n", (spritecount-1) *4) .. defines
 export_H(fpath, fnameonly, defines)
 
 return app.alert("Done!")
