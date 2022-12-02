@@ -1,3 +1,5 @@
+--Processes a 8x8 sector of an image and generate the GBDK C code representing its content as a GB sprite
+--row & col are expressed as blocks of 8 pixels
 local function exportTile2String (row, col, img)
     local output = ""
 
@@ -29,6 +31,19 @@ local function exportTile2String (row, col, img)
 
     return output
 end
+
+
+--Returns the path of the current executing script (on linux)
+--Thanks ! https://stackoverflow.com/questions/6380820/get-containing-path-of-lua-file
+local function script_path()
+    local str = debug.getinfo(2, "S").source:sub(2)
+    return str:match("(.*/)")
+ end
+
+
+----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
 
 local cel = app.activeCel
 if not cel then
@@ -68,10 +83,25 @@ if n > 2 then
     --TODO add iteration through the whole image here
 end
 
+--These regex work on linux, on windows should trade \ for / ...
+local fnameonly = app.activeSprite.filename:match("^.+/(.+)$"):gsub(".aseprite", "")
+local fpath = app.activeSprite.filename:match("^(.+)/.+$")
+
 
 --and save because I can't copy the content of the print popup..
-local file = io.open(app.activeSprite.filename .. "-export.c","w")
-file:write(output)
-file:close()
+-- local file = io.open(fname .. ".c","w")
+-- file:write(output)
+-- file:close()
+
+
+local ftemplateC = io.open(script_path() ..  "template.c","r")
+local content = ftemplateC:read("*all")
+ftemplateC:close()
+
+local foutC = io.open(fpath .. "/" .. fnameonly ..".c","w")
+content = content:gsub("%%%%CONTENT%%%%", output)
+content = content:gsub("%%%%HFILENAME%%%%", fnameonly)
+foutC:write(content)
+foutC:close()
 
 return app.alert("Done!")
