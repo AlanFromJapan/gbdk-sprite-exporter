@@ -77,8 +77,14 @@ if not cel then
   return app.alert("There is no active image")
 end
 
+--To iterate through the WHOLE SPRITE (what a noob would the image which is NOT what Aseprite calls an image)
+--and ignore the Cel concept, make a new image, write there the *flattened* source Sprite and work with that: no Cel, so (0,0) is really the top-left pixel! 
+--and not the top-left pixel of the bitmap (Image) in the active Cel that is maybe not the whole Sprite.
+--https://community.aseprite.org/t/how-to-iterate-through-pixels-of-an-image/14155/5
+local copyImg = Image(app.activeSprite.width, app.activeSprite.height, app.activeSprite.colorMode )
+copyImg:drawSprite (app.activeSprite, app.activeFrame)
 --current image
-local img = cel.image
+local img = copyImg 
 if img.colorMode ~= ColorMode.INDEXED then
     return app.alert("This works only with indexed palettes.")
 end
