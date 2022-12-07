@@ -4,6 +4,9 @@
 ## How to use
 Make an image which **size is a multiple of 16x16** (so 16x16, 32x16, 48x32, etc...) in **indexed color mode** (use the GB palette) and get crazy! Once you're happy, all the 16x16 subregions of the image will be exported to a sprite library useable with GBDK.
 
+![Image](img/aseprite-sprite.png?raw=true)
+![Image](img/c-code.png.png?raw=true)
+![Image](img/gb-sample.png?raw=true)
 
 
 ## Inspirations
