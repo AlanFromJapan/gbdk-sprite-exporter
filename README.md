@@ -12,6 +12,11 @@ Then it's exported to that code. The .h and .c file have the same name as the or
 And with the minimum GBDK code it builds to something like that.
 ![Image](img/gb-sample.png?raw=true)
 
+## How to install
+On Linux, go to where Aseprite stores the scripts (usually `/home/<your user name>/.config/aseprite/scripts/`) and clone that project with:
+`git clone https://github.com/AlanFromJapan/gbdk-sprite-exporter.git`
+
+Restart Aseprite or refresh the scripts, you should see it now.
 
 ## Misc comments
 Tested only on Linux, pretty sure that it will fail on Windows (path for sure!) but should work with minor adjustments.
